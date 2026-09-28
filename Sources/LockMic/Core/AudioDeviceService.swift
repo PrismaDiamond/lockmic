@@ -466,7 +466,7 @@ final class AudioDeviceService: @unchecked Sendable {
 
     /// Virtual inputs are those Core Audio reports with transport type `Virtual` only.
     /// No name/UID heuristics — drivers that mis-report transport will be treated as normal devices.
-    private func isVirtualInput(deviceID: AudioDeviceID) -> Bool {
+    func isVirtualInput(deviceID: AudioDeviceID) -> Bool {
         transportType(deviceID) == kAudioDeviceTransportTypeVirtual
     }
 

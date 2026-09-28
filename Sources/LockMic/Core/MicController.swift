@@ -53,6 +53,16 @@ private actor MicHardwareWorker {
         let defaultSupportsMute: Bool
         let devices: [InputDeviceRow]
         let error: String?
+
+        /// Virtual defaults (e.g. BlackHole) are excluded from mute-all writes,
+        /// so their mute property must not determine the controlled mic state.
+        var scopedMuted: Bool? {
+            let controlled = devices.filter { $0.isInScope && $0.supportsMute }
+            guard !controlled.isEmpty else { return nil }
+            if controlled.contains(where: { $0.isMuted == false }) { return false }
+            guard controlled.allSatisfy({ $0.isMuted == true }) else { return nil }
+            return true
+        }
     }
 
     struct MuteResult: Sendable {
@@ -82,7 +92,7 @@ private actor MicHardwareWorker {
         lastEnforcedDefaultID: AudioDeviceID
     ) -> MuteResult {
         let defaultID = try? audio.defaultInputDeviceID()
-        if muted, let defaultID, lastEnforcedDefaultID != 0,
+        if muted, let defaultID, (!muteAllInputs || !audio.isVirtualInput(deviceID: defaultID)), lastEnforcedDefaultID != 0,
            defaultID != lastEnforcedDefaultID
         {
             // USB drivers often need an unmute→mute transition after a device switch.
@@ -400,7 +410,7 @@ final class MicController: ObservableObject {
             applyMuteAllResult(
                 batch,
                 desiredMuted: desiredMuted,
-                hardwareMuted: result.snapshot.defaultMuted
+                hardwareMuted: result.snapshot.scopedMuted
             )
         } else if let error = result.error {
             lastError = error
@@ -419,10 +429,14 @@ final class MicController: ObservableObject {
     ) {
         deviceName = snapshot.deviceName
         lastError = snapshot.error
-        if let muted = snapshot.defaultMuted {
+        let muted = preferences.muteAllInputs ? snapshot.scopedMuted : snapshot.defaultMuted
+        let supportsMute = preferences.muteAllInputs
+            ? snapshot.devices.contains { $0.isInScope && $0.supportsMute }
+            : snapshot.defaultSupportsMute
+        if let muted {
             state = muted ? .muted : .unmuted
             if seedDesiredMuted { desiredMuted = muted }
-        } else if snapshot.defaultSupportsMute {
+        } else if supportsMute {
             state = .unknown
         } else if snapshot.error == nil {
             state = .unsupported(deviceName: deviceName)
