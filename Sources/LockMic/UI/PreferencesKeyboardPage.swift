@@ -42,10 +42,11 @@ struct PreferencesKeyboardPage: View {
             PreferencesChrome.sectionCard {
                 PreferencesChrome.sectionHeader(L10n.keyboardMomentaryHeader)
                 PreferencesChrome.caption(L10n.keyboardMomentaryCaption)
+                PreferencesChrome.caption(L10n.keyboardMomentaryModifierHint)
 
-                PreferencesChrome.shortcutRow(title: L10n.keyboardPushFlip, pref: $preferences.pushToToggleShortcut)
-                PreferencesChrome.shortcutRow(title: L10n.keyboardPushTalk, pref: $preferences.pushToTalkShortcut)
-                PreferencesChrome.shortcutRow(title: L10n.keyboardPushMute, pref: $preferences.pushToMuteShortcut)
+                PreferencesChrome.shortcutRow(title: L10n.keyboardPushFlip, pref: $preferences.pushToToggleShortcut, allowModifierOnly: true)
+                PreferencesChrome.shortcutRow(title: L10n.keyboardPushTalk, pref: $preferences.pushToTalkShortcut, allowModifierOnly: true)
+                PreferencesChrome.shortcutRow(title: L10n.keyboardPushMute, pref: $preferences.pushToMuteShortcut, allowModifierOnly: true)
             }
 
             PreferencesChrome.sectionCard {

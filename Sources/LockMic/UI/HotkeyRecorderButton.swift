@@ -1,13 +1,21 @@
 import AppKit
 import SwiftUI
 
+extension Notification.Name {
+    /// `object` is a `Bool`: true while a shortcut recorder is capturing keys.
+    static let hotkeyRecordingChanged = Notification.Name("LockMicHotkeyRecordingChanged")
+}
+
 /// Click to record a new global shortcut; Esc cancels; Delete clears.
 struct HotkeyRecorderButton: View {
     @Binding var chord: HotkeyChord
     var isEnabled: Bool = true
+    /// Momentary actions may bind a lone modifier (press and release it with nothing else).
+    var allowModifierOnly: Bool = false
 
     @State private var isRecording = false
     @State private var monitor: Any?
+    @State private var flagsMonitor: Any?
 
     var body: some View {
         Button {
@@ -49,6 +57,36 @@ struct HotkeyRecorderButton: View {
     private func startRecording() {
         stopRecording(keep: true)
         isRecording = true
+        NotificationCenter.default.post(name: .hotkeyRecordingChanged, object: true)
+        // Local monitors only see keys while LockMic is active; menu-bar apps may be behind another app.
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.keyWindow?.makeKeyAndOrderFront(nil)
+        if allowModifierOnly {
+            var peak: UInt32 = 0
+            var sawKey = false
+            flagsMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) { event in
+                if event.type == .keyDown {
+                    sawKey = true
+                    return event
+                }
+                let mods = HotkeyManager.carbonModifiers(from: event.modifierFlags)
+                if mods == 0 {
+                    let committed = peak
+                    let usable = !sawKey && committed != 0
+                    peak = 0
+                    sawKey = false
+                    if usable {
+                        DispatchQueue.main.async {
+                            chord = HotkeyChord(keyCode: 0, modifiers: committed)
+                            stopRecording(keep: true)
+                        }
+                    }
+                } else if mods.nonzeroBitCount >= peak.nonzeroBitCount {
+                    peak = mods
+                }
+                return event
+            }
+        }
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             // Esc — cancel
             if event.keyCode == 53 {
@@ -84,6 +122,13 @@ struct HotkeyRecorderButton: View {
         if let monitor {
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
+        }
+        if let flagsMonitor {
+            NSEvent.removeMonitor(flagsMonitor)
+            self.flagsMonitor = nil
+        }
+        if isRecording {
+            NotificationCenter.default.post(name: .hotkeyRecordingChanged, object: false)
         }
         isRecording = false
         _ = keep

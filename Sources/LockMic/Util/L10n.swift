@@ -194,6 +194,7 @@ enum L10n {
     static var keyboardF5: String { tr("keyboard.f5") }
     static var keyboardMomentaryHeader: String { tr("keyboard.momentary.header") }
     static var keyboardMomentaryCaption: String { tr("keyboard.momentary.caption") }
+    static var keyboardMomentaryModifierHint: String { tr("keyboard.momentary.modifier_hint") }
     static var keyboardPushFlip: String { tr("keyboard.push_flip") }
     static var keyboardPushTalk: String { tr("keyboard.push_talk") }
     static var keyboardPushMute: String { tr("keyboard.push_mute") }

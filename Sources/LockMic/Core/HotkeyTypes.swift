@@ -11,6 +11,12 @@ struct HotkeyChord: Equatable, Sendable, Hashable {
     var isEmpty: Bool {
         keyCode == 0 && modifiers == 0
     }
+
+    /// A lone modifier key (e.g. ⌃) — encoded as `keyCode == 0` with modifiers set.
+    /// Detected by polling, since Carbon can't register it.
+    var isModifierOnly: Bool {
+        keyCode == 0 && modifiers != 0
+    }
 }
 
 enum HotkeyAction: String, Sendable {

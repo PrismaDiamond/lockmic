@@ -15,6 +15,18 @@ final class HotkeyManager {
     private var fallbackBindings: [HotkeyBinding] = []
     private var actionHandler: ((HotkeyAction, HotkeyPhase) -> Void)?
 
+    private var modifierTimer: Timer?
+    private var modifierStates: [Int: ModifierPollState] = [:]
+    /// 5 Hz poll; a press must survive one full tick without any key-down to count as a lone modifier.
+    private static let modifierPollInterval: TimeInterval = 0.2
+
+    private struct ModifierPollState {
+        var candidateSince: CFAbsoluteTime?
+        var active = false
+        var activeSince: CFAbsoluteTime = 0
+        var cancelled = false
+    }
+
     private var localMonitor: Any?
     private var globalMonitor: Any?
 
@@ -57,12 +69,13 @@ final class HotkeyManager {
         HotkeyManager.sharedEventSink = self.actionHandler
 
         var fallback: [HotkeyBinding] = []
-        for binding in self.bindings {
+        for binding in self.bindings where !binding.chord.isModifierOnly {
             if !installCarbonHotKey(binding) {
                 fallback.append(binding)
             }
         }
         fallbackBindings = fallback
+        startModifierPolling(for: self.bindings.filter { $0.chord.isModifierOnly && $0.action.isMomentary })
         if !fallback.isEmpty {
             installEventMonitors(for: fallback)
             log.notice("NSEvent fallback for \(fallback.count) hotkey(s)")
@@ -70,6 +83,9 @@ final class HotkeyManager {
     }
 
     func unregister() {
+        modifierTimer?.invalidate()
+        modifierTimer = nil
+        modifierStates = [:]
         for ref in hotKeyRefs {
             UnregisterEventHotKey(ref)
         }
@@ -93,6 +109,72 @@ final class HotkeyManager {
         fallbackBindings = []
         actionHandler = nil
         HotkeyManager.sharedEventSink = nil
+    }
+
+    // MARK: - Modifier-only (polling, no permissions)
+
+    private func startModifierPolling(for modBindings: [HotkeyBinding]) {
+        guard !modBindings.isEmpty else { return }
+        let timer = Timer(timeInterval: Self.modifierPollInterval, repeats: true) { [weak self] _ in
+            self?.pollModifiers(modBindings)
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        modifierTimer = timer
+        log.notice("Modifier polling for \(modBindings.count) hotkey(s)")
+    }
+
+    private func pollModifiers(_ modBindings: [HotkeyBinding]) {
+        let now = CFAbsoluteTimeGetCurrent()
+        let held = Self.currentCarbonModifiers()
+        let sinceKey = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: .keyDown)
+
+        for (index, binding) in modBindings.enumerated() {
+            var state = modifierStates[index] ?? ModifierPollState()
+            let matches = held == binding.chord.modifiers
+
+            if state.active {
+                if !matches {
+                    state = ModifierPollState()
+                    actionHandler?(binding.action, .released)
+                } else if sinceKey < now - state.activeSince {
+                    // Key pressed while the modifier is held (⌃ … C): it was a shortcut, undo the action.
+                    state.active = false
+                    state.cancelled = true
+                    actionHandler?(binding.action, .released)
+                }
+            } else if !matches {
+                state = ModifierPollState()
+            } else if state.cancelled {
+                // Wait for release before re-arming.
+            } else if let since = state.candidateSince {
+                // A key-down after the modifier went down means a normal shortcut (⌃C etc.).
+                if sinceKey < now - since + Self.modifierPollInterval {
+                    state.cancelled = true
+                } else {
+                    state.active = true
+                    state.activeSince = now
+                    actionHandler?(binding.action, .pressed)
+                }
+            } else {
+                // Key typed just before the modifier is also treated as a shortcut in progress.
+                if sinceKey < Self.modifierPollInterval {
+                    state.cancelled = true
+                } else {
+                    state.candidateSince = now
+                }
+            }
+            modifierStates[index] = state
+        }
+    }
+
+    static func currentCarbonModifiers() -> UInt32 {
+        let flags = CGEventSource.flagsState(.combinedSessionState)
+        var m: UInt32 = 0
+        if flags.contains(.maskControl) { m |= UInt32(controlKey) }
+        if flags.contains(.maskAlternate) { m |= UInt32(optionKey) }
+        if flags.contains(.maskCommand) { m |= UInt32(cmdKey) }
+        if flags.contains(.maskShift) { m |= UInt32(shiftKey) }
+        return m
     }
 
     // MARK: - Carbon
@@ -279,18 +361,20 @@ final class HotkeyManager {
 
     static func displayString(keyCode: UInt32, modifiers: UInt32) -> String {
         if keyCode == 0 && modifiers == 0 { return "None" }
+        let modifierOnly = keyCode == 0
         var parts: [String] = []
         if modifiers & UInt32(controlKey) != 0 { parts.append("⌃") }
         if modifiers & UInt32(optionKey) != 0 { parts.append("⌥") }
         if modifiers & UInt32(shiftKey) != 0 { parts.append("⇧") }
         if modifiers & UInt32(cmdKey) != 0 { parts.append("⌘") }
-        parts.append(keyCodeToString(keyCode))
+        if !modifierOnly { parts.append(keyCodeToString(keyCode)) }
         return parts.joined()
     }
 
     /// The `NSMenuItem.keyEquivalent` character for a chord, for menu items that mirror a
     /// global shortcut. `nil` for keys with no sensible menu representation (e.g. Esc/Backspace).
     static func menuKeyEquivalent(keyCode: UInt32) -> String? {
+        guard keyCode != 0 else { return nil } // modifier-only chords have no key equivalent
         let letters: [UInt32: String] = [
             0: "a", 1: "s", 2: "d", 3: "f", 4: "h", 5: "g", 6: "z", 7: "x",
             8: "c", 9: "v", 11: "b", 12: "q", 13: "w", 14: "e", 15: "r",

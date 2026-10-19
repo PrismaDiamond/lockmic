@@ -48,6 +48,21 @@ final class HotkeyCoordinator {
     init(mic: MicController, preferences: PreferencesStore) {
         self.mic = mic
         self.preferences = preferences
+        // While a shortcut is being recorded, release global hotkeys so Carbon doesn't swallow the keys.
+        NotificationCenter.default.addObserver(
+            forName: .hotkeyRecordingChanged, object: nil, queue: .main
+        ) { [weak self] note in
+            let recording = note.object as? Bool ?? false
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                if recording {
+                    self.cancelHold(restore: true)
+                    self.hotkeys.register(bindings: []) { _, _ in }
+                } else {
+                    self.registerIfNeeded(force: true, enabled: self.preferences.featuresEnabled)
+                }
+            }
+        }
     }
 
     func registerIfNeeded(force: Bool = false, enabled: Bool) {

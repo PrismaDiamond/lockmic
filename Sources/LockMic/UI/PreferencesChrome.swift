@@ -85,14 +85,19 @@ enum PreferencesChrome {
         }
     }
 
-    static func shortcutRow(title: String, pref: Binding<HotkeyPref>) -> some View {
-        shortcutRow(title: title, enabled: pref.enabled, chord: pref.chord)
+    static func shortcutRow(
+        title: String,
+        pref: Binding<HotkeyPref>,
+        allowModifierOnly: Bool = false
+    ) -> some View {
+        shortcutRow(title: title, enabled: pref.enabled, chord: pref.chord, allowModifierOnly: allowModifierOnly)
     }
 
     static func shortcutRow(
         title: String,
         enabled: Binding<Bool>,
-        chord: Binding<HotkeyChord>
+        chord: Binding<HotkeyChord>,
+        allowModifierOnly: Bool = false
     ) -> some View {
         HStack(spacing: 10) {
             Toggle(title, isOn: enabled)
@@ -101,7 +106,7 @@ enum PreferencesChrome {
                 .focusable(false)
                 .focusEffectDisabled()
 
-            HotkeyRecorderButton(chord: chord, isEnabled: enabled.wrappedValue)
+            HotkeyRecorderButton(chord: chord, isEnabled: enabled.wrappedValue, allowModifierOnly: allowModifierOnly)
         }
     }
 }

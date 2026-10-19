@@ -74,6 +74,7 @@
 "keyboard.help.click" = "Click to change shortcut";
 "keyboard.help.recording" = "Press a key combo · Esc to cancel · Delete to clear";
 "keyboard.momentary.caption" = "Hold to change mute · release restores previous state";
+"keyboard.momentary.modifier_hint" = "A single modifier key (⌃ ⌥ ⇧ ⌘) can be used as a shortcut: press and release it alone while recording. Using it in other shortcuts (like ⌘C) cancels the action.";
 "keyboard.momentary.header" = "Momentary";
 "keyboard.mute" = "Mute";
 "keyboard.push_flip" = "Push to flip";
