@@ -15,6 +15,8 @@ enum L10n {
     // MARK: - Tabs
 
     static var tabGeneral: String { tr("tab.general") }
+    static var tabAppearance: String { tr("tab.appearance") }
+    static var appearanceIndicatorsHeader: String { tr("appearance.indicators.header") }
     static var tabDevices: String { tr("tab.devices") }
     static var tabRecording: String { tr("tab.recording") }
     static var tabKeyboard: String { tr("tab.keyboard") }
@@ -41,6 +43,13 @@ enum L10n {
     static var generalOptionsHeader: String { tr("general.options.header") }
     static var generalOptionsHUD: String { tr("general.options.hud") }
     static var generalOptionsHUDCaption: String { tr("general.options.hud.caption") }
+    static var generalOptionsMenuBarIcon: String { tr("general.options.menubaricon") }
+    static var generalOptionsMenuBarIconCaption: String { tr("general.options.menubaricon.caption") }
+    static var generalOptionsMenuBarIconText: String { tr("general.options.menubaricon.text") }
+    static var generalOptionsMenuBarIconRedBox: String { tr("general.options.menubaricon.redbox") }
+    static var generalOptionsMenuBarIconMonochrome: String { tr("general.options.menubaricon.monochrome") }
+    static var generalOptionsMenuBarIconRed: String { tr("general.options.menubaricon.red") }
+    static var generalOptionsMenuBarIconRedGreen: String { tr("general.options.menubaricon.redgreen") }
     static var generalOptionsFloating: String { tr("general.options.floating") }
     static var generalOptionsFloatingCaption: String { tr("general.options.floating.caption") }
     static var generalOptionsSound: String { tr("general.options.sound") }

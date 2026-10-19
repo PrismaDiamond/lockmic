@@ -39,6 +39,13 @@
 "general.options.hud.caption" = "Brief indicator on mute/unmute, and while holding talk / mute / flip.";
 "general.options.dock" = "Show in Dock";
 "general.options.dock.caption" = "Always show in Dock. When off, LockMic still appears in the Dock if the menu bar icon is hidden by the camera housing or other icons.";
+"general.options.menubaricon" = "Menu bar icon";
+"general.options.menubaricon.monochrome" = "Monochrome";
+"general.options.menubaricon.red" = "Red icon";
+"general.options.menubaricon.text" = "ON / OFF";
+"general.options.menubaricon.redbox" = "Red box";
+"general.options.menubaricon.caption" = "Each tile shows mic on (left) and muted (right). A red dot appears on the icon while recording.";
+"general.options.menubaricon.redgreen" = "Red / green";
 "general.options.appearance" = "Appearance";
 "general.options.appearance.system" = "System";
 "general.options.appearance.light" = "Light";
@@ -112,6 +119,8 @@
 "menu.update.skip" = "Skip This Version";
 "prefs.title" = "Preferences";
 "tab.about" = "About";
+"tab.appearance" = "Appearance";
+"appearance.indicators.header" = "Indicators";
 "tab.devices" = "Devices";
 "tab.general" = "General";
 "tab.keyboard" = "Keyboard";

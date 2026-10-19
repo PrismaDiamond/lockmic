@@ -11,6 +11,17 @@ extension Notification.Name {
 }
 
 /// User's preferred UI appearance. `.system` follows macOS's current setting.
+/// How the menu bar icon is drawn: system-tinted (template) or colored by mic state.
+enum MenuBarIconStyle: String, CaseIterable, Identifiable {
+    case monochrome
+    case redWhenLive
+    case redBox
+    case textBadge
+    case redAndGreen
+
+    var id: String { rawValue }
+}
+
 enum AppAppearance: String, CaseIterable, Identifiable {
     case system
     case light
@@ -50,6 +61,7 @@ final class PreferencesStore: ObservableObject {
         /// When true, show a Dock icon so Preferences stay reachable if the menu bar is full.
         static let showInDock = "showInDock"
         static let appAppearance = "appAppearance"
+        static let menuBarIconStyle = "menuBarIconStyle"
 
         static let toggleEnabled = "hotkeyToggleEnabled"
         static let toggleKeyCode = "hotkeyToggleKeyCode"
@@ -221,6 +233,10 @@ final class PreferencesStore: ObservableObject {
     }
 
     /// Light / dark / follow-system.
+    @Published var menuBarIconStyle: MenuBarIconStyle {
+        didSet { UserDefaults.standard.set(menuBarIconStyle.rawValue, forKey: Keys.menuBarIconStyle) }
+    }
+
     @Published var appAppearance: AppAppearance {
         didSet {
             UserDefaults.standard.set(appAppearance.rawValue, forKey: Keys.appAppearance)
@@ -331,6 +347,7 @@ final class PreferencesStore: ObservableObject {
         }
         showInDock = defaults.bool(forKey: Keys.showInDock)
 
+        menuBarIconStyle = MenuBarIconStyle(rawValue: defaults.string(forKey: Keys.menuBarIconStyle) ?? "") ?? .monochrome
         appAppearance = AppAppearance(rawValue: defaults.string(forKey: Keys.appAppearance) ?? "") ?? .system
 
         // Opt-in only — unset key means not agreed (features disabled).

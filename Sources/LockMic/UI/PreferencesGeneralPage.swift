@@ -35,26 +35,11 @@ struct PreferencesGeneralPage: View {
             PreferencesChrome.sectionCard {
                 PreferencesChrome.sectionHeader(L10n.generalOptionsHeader)
                 Group {
-                    Toggle(L10n.generalOptionsHUD, isOn: $preferences.hudEnabled)
-                    PreferencesChrome.caption(L10n.generalOptionsHUDCaption)
-                    Toggle(L10n.generalOptionsFloating, isOn: $preferences.hudFloating)
-                    PreferencesChrome.caption(L10n.generalOptionsFloatingCaption)
                     Toggle(L10n.generalOptionsSound, isOn: $preferences.soundEnabled)
                     Toggle(L10n.generalOptionsLogin, isOn: $preferences.launchAtLogin)
                 }
                 .disabled(!preferences.featuresEnabled)
                 .opacity(preferences.featuresEnabled ? 1 : 0.45)
-
-                Toggle(L10n.generalOptionsDock, isOn: $preferences.showInDock)
-                PreferencesChrome.caption(L10n.generalOptionsDockCaption)
-
-                Picker(L10n.generalOptionsAppearance, selection: $preferences.appAppearance) {
-                    Text(L10n.generalOptionsAppearanceSystem).tag(AppAppearance.system)
-                    Text(L10n.generalOptionsAppearanceLight).tag(AppAppearance.light)
-                    Text(L10n.generalOptionsAppearanceDark).tag(AppAppearance.dark)
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 320)
             }
         }
     }

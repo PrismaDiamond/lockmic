@@ -123,7 +123,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appearedAsMenuBarFallback =
             NSApp.activationPolicy() != .regular && policy == .regular && !menuBarIconVisible
         if NSApp.activationPolicy() != policy {
+            // Changing activation policy makes macOS deactivate the app and hide its windows
+            // (e.g. Preferences while toggling "Show in Dock"); restore both afterwards.
+            let wasActive = NSApp.isActive
+            let visibleWindows = NSApp.windows.filter { $0.isVisible && !$0.isMiniaturized }
+            let keyWindow = NSApp.keyWindow
             NSApp.setActivationPolicy(policy)
+            if wasActive {
+                DispatchQueue.main.async {
+                    NSApp.activate(ignoringOtherApps: true)
+                    for window in visibleWindows { window.orderFront(nil) }
+                    keyWindow?.makeKeyAndOrderFront(nil)
+                }
+            }
         }
         if appearedAsMenuBarFallback {
             // Dock recreates the tile unbadged while leaving `badgeLabel` set.

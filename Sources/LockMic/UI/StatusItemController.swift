@@ -88,6 +88,17 @@ final class StatusItemController {
 
         applyFeatureAvailability(force: true)
         observeMic()
+        preferences.$menuBarIconStyle
+            .dropFirst()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateIcon() }
+            .store(in: &micCancellables)
+        recorder.$isRecording
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateIcon() }
+            .store(in: &micCancellables)
         mic.$state
             .removeDuplicates()
             .sink { [weak self] _ in
@@ -712,6 +723,11 @@ final class StatusItemController {
     }
 
     private func updateIcon() {
+        // The ON / OFF and red box icons are wider than the square slot; let the item grow so it isn't scaled down.
+        let style = preferences.menuBarIconStyle
+        let wide = featuresEnabled && (style == .textBadge || style == .redBox)
+        statusItem?.length = wide ? NSStatusItem.variableLength : NSStatusItem.squareLength
+        statusItem?.button?.imageScaling = wide ? .scaleNone : .scaleProportionallyDown
         statusItem?.button?.appearsDisabled = false
         statusItem?.button?.image = featuresEnabled
             ? statusImage(symbolName: symbolName(for: mic.state))
@@ -784,52 +800,24 @@ final class StatusItemController {
     }
 
     private func statusImage(symbolName: String) -> NSImage {
-        menuBarSymbolImage(systemName: symbolName, accessibilityDescription: "LockMic")
-    }
-
-    private func disabledStatusImage() -> NSImage {
-        menuBarSymbolImage(
-            systemName: "hand.raised.fill",
-            accessibilityDescription: L10n.statusAccessibilityDisabled,
-            weight: .semibold
+        MenuBarIconRenderer.image(
+            symbol: symbolName,
+            style: preferences.menuBarIconStyle,
+            state: mic.state,
+            recording: recorder.isRecording,
+            description: "LockMic"
         )
     }
 
-    private func menuBarSymbolImage(
-        systemName: String,
-        accessibilityDescription: String,
-        weight: NSFont.Weight = .medium
-    ) -> NSImage {
-        let pointSize: CGFloat = 16
-        let canvas = NSSize(width: 18, height: 18)
-        let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: weight)
-            .applying(NSImage.SymbolConfiguration(scale: .large))
-
-        guard let symbol = NSImage(systemSymbolName: systemName, accessibilityDescription: accessibilityDescription)?
-            .withSymbolConfiguration(config) else {
-            return NSImage(size: canvas)
-        }
-
-        let image = NSImage(size: canvas, flipped: false) { bounds in
-            let symbolSize = symbol.size
-            let scale = min(bounds.width / max(symbolSize.width, 1), bounds.height / max(symbolSize.height, 1))
-            let drawSize = NSSize(width: symbolSize.width * scale, height: symbolSize.height * scale)
-            let origin = NSPoint(
-                x: bounds.midX - drawSize.width / 2,
-                y: bounds.midY - drawSize.height / 2
-            )
-            symbol.draw(
-                in: NSRect(origin: origin, size: drawSize),
-                from: .zero,
-                operation: .sourceOver,
-                fraction: 1,
-                respectFlipped: true,
-                hints: [.interpolation: NSImageInterpolation.high]
-            )
-            return true
-        }
-        image.isTemplate = true
-        return image
+    private func disabledStatusImage() -> NSImage {
+        MenuBarIconRenderer.image(
+            symbol: "hand.raised.fill",
+            style: .monochrome,
+            state: .unknown,
+            recording: false,
+            description: L10n.statusAccessibilityDisabled,
+            weight: .semibold
+        )
     }
 
     private func tooltip(for state: MicState) -> String {

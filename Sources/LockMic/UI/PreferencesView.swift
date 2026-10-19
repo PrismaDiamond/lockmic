@@ -125,6 +125,8 @@ struct PreferencesView: View {
                 switch selection {
                 case .general:
                     PreferencesGeneralPage(preferences: preferences, mic: mic)
+                case .appearance:
+                    PreferencesAppearancePage(preferences: preferences)
                 case .devices:
                     PreferencesDevicesPage(preferences: preferences, mic: mic)
                         .disabled(!preferences.featuresEnabled)
