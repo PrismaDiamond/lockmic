@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Clic pentru a schimba scurtătura";
 "keyboard.help.recording" = "Apăsați o combinație · Esc anulează · Delete șterge";
 "keyboard.momentary.caption" = "Țineți pentru a schimba · eliberarea restaurează starea anterioară";
+"keyboard.momentary.modifier_hint" = "O singură tastă modificatoare (⌃ ⌥ ⇧ ⌘) poate fi folosită ca scurtătură: apăsați-o și eliberați-o singură la înregistrare. Folosirea ei în alte scurtături (de ex. ⌘C) anulează acțiunea.";
 "keyboard.momentary.header" = "Momentan";
 "keyboard.mute" = "Oprește";
 "keyboard.push_flip" = "Țineți pentru a inversa";

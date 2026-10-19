@@ -67,6 +67,7 @@
 "keyboard.help.click" = "クリックしてショートカットを変更";
 "keyboard.help.recording" = "キーの組み合わせ · Esc でキャンセル · Delete でクリア";
 "keyboard.momentary.caption" = "押し続けて変更 · 離すと前の状態に戻る";
+"keyboard.momentary.modifier_hint" = "修飾キー(⌃ ⌥ ⇧ ⌘)を単独でショートカットに使えます。記録中にそのキーだけを押して離してください。他のショートカット(⌘C など)で使うと操作は取り消されます。";
 "keyboard.momentary.header" = "モーメンタリー";
 "keyboard.mute" = "ミュート";
 "keyboard.push_flip" = "プッシュで反転";

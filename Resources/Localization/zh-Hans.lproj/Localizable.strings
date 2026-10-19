@@ -67,6 +67,7 @@
 "keyboard.help.click" = "点击更改快捷键";
 "keyboard.help.recording" = "按下组合键 · Esc 取消 · Delete 清除";
 "keyboard.momentary.caption" = "按住以更改 · 松开恢复先前状态";
+"keyboard.momentary.modifier_hint" = "可将单个修饰键(⌃ ⌥ ⇧ ⌘)用作快捷键:录制时单独按下并松开即可。若在其他快捷键(如 ⌘C)中使用,该操作会被取消。";
 "keyboard.momentary.header" = "按住模式";
 "keyboard.mute" = "静音";
 "keyboard.push_flip" = "按住翻转";

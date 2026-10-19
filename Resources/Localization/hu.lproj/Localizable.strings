@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Kattintson a parancs módosításához";
 "keyboard.help.recording" = "Nyomjon billentyűkombinációt · Esc megszakít · Delete töröl";
 "keyboard.momentary.caption" = "Tartsa lenyomva a váltáshoz · elengedés visszaállítja az előző állapotot";
+"keyboard.momentary.modifier_hint" = "Egyetlen módosítóbillentyű (⌃ ⌥ ⇧ ⌘) is használható gyorsbillentyűként: rögzítéskor nyomja le és engedje fel egyedül. Más billentyűkombinációkban (pl. ⌘C) használva a művelet megszakad.";
 "keyboard.momentary.header" = "Pillanatnyi";
 "keyboard.mute" = "Némítás";
 "keyboard.push_flip" = "Tartsa lenyomva a fordításhoz";

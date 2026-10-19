@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Kliknij, aby zmienić skrót";
 "keyboard.help.recording" = "Naciśnij kombinację · Esc anuluje · Delete czyści";
 "keyboard.momentary.caption" = "Przytrzymaj, by zmienić · puszczenie przywraca poprzedni stan";
+"keyboard.momentary.modifier_hint" = "Pojedynczy klawisz modyfikujący (⌃ ⌥ ⇧ ⌘) może służyć jako skrót: podczas nagrywania naciśnij go i puść samodzielnie. Użycie w innych skrótach (np. ⌘C) anuluje akcję.";
 "keyboard.momentary.header" = "Chwilowe";
 "keyboard.mute" = "Wycisz";
 "keyboard.push_flip" = "Przytrzymaj, by odwrócić";

@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Klicken, um Tastenkürzel zu ändern";
 "keyboard.help.recording" = "Tastenkombination · Esc zum Abbrechen · Entf zum Löschen";
 "keyboard.momentary.caption" = "Halten zum Umschalten · Loslassen stellt den vorherigen Zustand wieder her";
+"keyboard.momentary.modifier_hint" = "Eine einzelne Sondertaste (⌃ ⌥ ⇧ ⌘) kann als Tastenkürzel dienen: Beim Aufnehmen allein drücken und loslassen. Wird sie in anderen Kürzeln verwendet (z. B. ⌘C), wird die Aktion abgebrochen.";
 "keyboard.momentary.header" = "Momentan";
 "keyboard.mute" = "Stumm";
 "keyboard.push_flip" = "Halten zum Umschalten";

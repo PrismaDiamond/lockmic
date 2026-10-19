@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Klik for å endre snarvei";
 "keyboard.help.recording" = "Trykk en kombinasjon · Esc avbryter · Delete tømmer";
 "keyboard.momentary.caption" = "Hold for å endre · slipp gjenoppretter forrige tilstand";
+"keyboard.momentary.modifier_hint" = "En enkelt modifikatortast (⌃ ⌥ ⇧ ⌘) kan brukes som snarvei: trykk og slipp den alene under opptak. Brukes den i andre snarveier (f.eks. ⌘C), avbrytes handlingen.";
 "keyboard.momentary.header" = "Momentan";
 "keyboard.mute" = "Demp";
 "keyboard.push_flip" = "Hold for å snu";

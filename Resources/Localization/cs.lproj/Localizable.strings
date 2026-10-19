@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Kliknutím změnit zkratku";
 "keyboard.help.recording" = "Stiskněte kombinaci · Esc zruší · Delete vymaže";
 "keyboard.momentary.caption" = "Podržte pro změnu · uvolnění obnoví předchozí stav";
+"keyboard.momentary.modifier_hint" = "Jedinou klávesu modifikátoru (⌃ ⌥ ⇧ ⌘) lze použít jako zkratku: při nahrávání ji stiskněte a uvolněte samotnou. Použití v jiných zkratkách (např. ⌘C) akci zruší.";
 "keyboard.momentary.header" = "Momentální";
 "keyboard.mute" = "Ztlumit";
 "keyboard.push_flip" = "Podržet pro invertování";

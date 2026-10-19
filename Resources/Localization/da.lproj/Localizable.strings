@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Klik for at ændre genvej";
 "keyboard.help.recording" = "Tryk en kombination · Esc annullerer · Delete rydder";
 "keyboard.momentary.caption" = "Hold for at ændre · slip gendanner tidligere tilstand";
+"keyboard.momentary.modifier_hint" = "En enkelt modifikatortast (⌃ ⌥ ⇧ ⌘) kan bruges som genvej: tryk og slip den alene under optagelse. Bruges den i andre genveje (f.eks. ⌘C), annulleres handlingen.";
 "keyboard.momentary.header" = "Momentan";
 "keyboard.mute" = "Slå fra";
 "keyboard.push_flip" = "Hold for at vende";

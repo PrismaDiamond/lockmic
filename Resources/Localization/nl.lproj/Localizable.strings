@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Klik om sneltoets te wijzigen";
 "keyboard.help.recording" = "Toetscombinatie · Esc om te annuleren · Delete om te wissen";
 "keyboard.momentary.caption" = "Ingedrukt houden om te wijzigen · loslaten herstelt vorige status";
+"keyboard.momentary.modifier_hint" = "Een enkele modifiertoets (⌃ ⌥ ⇧ ⌘) kan als sneltoets dienen: druk hem tijdens het opnemen alleen in en laat los. Gebruik in andere sneltoetsen (zoals ⌘C) annuleert de actie.";
 "keyboard.momentary.header" = "Momentaan";
 "keyboard.mute" = "Dempen";
 "keyboard.push_flip" = "Indrukken om om te keren";

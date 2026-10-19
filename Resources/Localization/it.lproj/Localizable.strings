@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Clic per cambiare scorciatoia";
 "keyboard.help.recording" = "Premi una combinazione · Esc annulla · Canc elimina";
 "keyboard.momentary.caption" = "Tieni premuto per cambiare · rilascia ripristina lo stato precedente";
+"keyboard.momentary.modifier_hint" = "Un singolo tasto modificatore (⌃ ⌥ ⇧ ⌘) può essere usato come scorciatoia: premilo e rilascialo da solo durante la registrazione. Usarlo in altre scorciatoie (come ⌘C) annulla l’azione.";
 "keyboard.momentary.header" = "Momentaneo";
 "keyboard.mute" = "Disattiva";
 "keyboard.push_flip" = "Tieni per invertire";

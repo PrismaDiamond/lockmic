@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Clic para cambiar el atajo";
 "keyboard.help.recording" = "Pulse una combinación · Esc para cancelar · Supr para borrar";
 "keyboard.momentary.caption" = "Mantener para cambiar · soltar restaura el estado anterior";
+"keyboard.momentary.modifier_hint" = "Una sola tecla modificadora (⌃ ⌥ ⇧ ⌘) puede usarse como atajo: púlsala y suéltala sola al grabar. Si se usa en otros atajos (como ⌘C), la acción se cancela.";
 "keyboard.momentary.header" = "Momentáneo";
 "keyboard.mute" = "Silenciar";
 "keyboard.push_flip" = "Mantener para invertir";

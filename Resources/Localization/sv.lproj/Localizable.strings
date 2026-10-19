@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Klicka för att ändra genväg";
 "keyboard.help.recording" = "Tryck en kombination · Esc avbryter · Delete rensar";
 "keyboard.momentary.caption" = "Håll för att ändra · släpp återställer tidigare tillstånd";
+"keyboard.momentary.modifier_hint" = "En enskild modifierartangent (⌃ ⌥ ⇧ ⌘) kan användas som kortkommando: tryck och släpp den ensam vid inspelning. Används den i andra kortkommandon (t.ex. ⌘C) avbryts åtgärden.";
 "keyboard.momentary.header" = "Momentan";
 "keyboard.mute" = "Tysta";
 "keyboard.push_flip" = "Håll för att vända";

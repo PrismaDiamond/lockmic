@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Napsauta vaihtaaksesi pikanäppäintä";
 "keyboard.help.recording" = "Paina yhdistelmää · Esc peruuttaa · Delete tyhjentää";
 "keyboard.momentary.caption" = "Pidä pohjassa muuttaaksesi · vapautus palauttaa edellisen tilan";
+"keyboard.momentary.modifier_hint" = "Yksittäistä muokkausnäppäintä (⌃ ⌥ ⇧ ⌘) voi käyttää pikanäppäimenä: paina ja vapauta se yksin tallennuksen aikana. Käyttö muissa pikanäppäimissä (esim. ⌘C) peruu toiminnon.";
 "keyboard.momentary.header" = "Hetkellinen";
 "keyboard.mute" = "Mykistä";
 "keyboard.push_flip" = "Pidä kääntääksesi";

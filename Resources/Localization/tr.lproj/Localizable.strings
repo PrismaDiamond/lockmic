@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Kısayolu değiştirmek için tıklayın";
 "keyboard.help.recording" = "Tuş kombinasyonu · Esc iptal · Delete temizle";
 "keyboard.momentary.caption" = "Değiştirmek için basılı tutun · bırakınca önceki durum geri gelir";
+"keyboard.momentary.modifier_hint" = "Tek bir değiştirici tuş (⌃ ⌥ ⇧ ⌘) kısayol olarak kullanılabilir: kayıt sırasında tek başına basıp bırakın. Diğer kısayollarda (ör. ⌘C) kullanılması eylemi iptal eder.";
 "keyboard.momentary.header" = "Anlık";
 "keyboard.mute" = "Sessize al";
 "keyboard.push_flip" = "Basılı tutarak ters çevir";

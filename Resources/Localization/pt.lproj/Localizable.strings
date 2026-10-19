@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Clique para alterar o atalho";
 "keyboard.help.recording" = "Combinação de teclas · Esc para cancelar · Delete para limpar";
 "keyboard.momentary.caption" = "Manter premido para alterar · soltar restaura o estado anterior";
+"keyboard.momentary.modifier_hint" = "Uma única tecla modificadora (⌃ ⌥ ⇧ ⌘) pode ser usada como atalho: prima-a e solte-a sozinha ao gravar. Usá-la noutros atalhos (como ⌘C) cancela a ação.";
 "keyboard.momentary.header" = "Momentâneo";
 "keyboard.mute" = "Silenciar";
 "keyboard.push_flip" = "Manter para inverter";

@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Kliknite da promenite prečicu";
 "keyboard.help.recording" = "Kombinacija tastera · Esc — otkaži · Delete — obriši";
 "keyboard.momentary.caption" = "Držite za promenu · puštanje vraća prethodno stanje";
+"keyboard.momentary.modifier_hint" = "Jedan taster modifikator (⌃ ⌥ ⇧ ⌘) može se koristiti kao prečica: pritisnite ga i pustite samog tokom snimanja. Upotreba u drugim prečicama (npr. ⌘C) otkazuje radnju.";
 "keyboard.momentary.header" = "Trentno";
 "keyboard.mute" = "Utišaj";
 "keyboard.push_flip" = "Drži za inverziju";

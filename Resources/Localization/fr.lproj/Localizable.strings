@@ -67,6 +67,7 @@
 "keyboard.help.click" = "Cliquer pour changer le raccourci";
 "keyboard.help.recording" = "Combinaison de touches · Échap pour annuler · Suppr pour effacer";
 "keyboard.momentary.caption" = "Maintenir pour changer · relâcher restaure l’état précédent";
+"keyboard.momentary.modifier_hint" = "Une seule touche de modification (⌃ ⌥ ⇧ ⌘) peut servir de raccourci : appuyez dessus et relâchez-la seule lors de l’enregistrement. L’utiliser dans d’autres raccourcis (comme ⌘C) annule l’action.";
 "keyboard.momentary.header" = "Momentané";
 "keyboard.mute" = "Muet";
 "keyboard.push_flip" = "Maintenir pour basculer";
