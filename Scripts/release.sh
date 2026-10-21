@@ -169,7 +169,8 @@ if [[ "$MODE" == "publish" ]]; then
   for file in "$ZIP" "$DMG" "${ZIP}.sha256" "${DMG}.sha256"; do
     [[ -f "$file" ]] || { echo "error: missing release asset $file" >&2; exit 1; }
   done
-  (cd "$ROOT/build/dist" && shasum -a 256 -c "$(basename "${ZIP}.sha256")" && shasum -a 256 -c "$(basename "${DMG}.sha256")")
+  shasum -a 256 -c "${ZIP}.sha256"
+  shasum -a 256 -c "${DMG}.sha256"
   HASH="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
   CASK_HASH="$(sed -n 's/^  sha256 "\([0-9a-fA-F]*\)"/\1/p' Casks/lockmic.rb | head -1)"
   [[ "$HASH" == "$CASK_HASH" ]] || { echo "error: zip checksum differs from merged cask" >&2; exit 1; }
