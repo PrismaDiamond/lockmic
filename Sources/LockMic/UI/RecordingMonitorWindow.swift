@@ -24,12 +24,15 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
     private var playbackScopeChip: PlaybackScopeChip?
     private var muteButton: MuteToggleButton?
     private var stopButton: StopRecordingButton?
+    private var splitButton: SplitRecordingButton?
     private var preferences: PreferencesStore?
     private var mic: MicController?
     private var waveform: WaveformView?
     private var timer: Timer?
     private var recorder: SessionRecorder?
     private var onStop: (() -> Void)?
+    private var onSplit: (() -> Void)?
+    private var splitEnabled = true
     private var onAllowAccess: (() -> Void)?
     private var onToggleMute: (() -> Void)?
     private var onShowRecordings: (() -> Void)?
@@ -51,6 +54,7 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         preferences: PreferencesStore? = nil,
         mic: MicController? = nil,
         onStop: @escaping () -> Void,
+        onSplit: (() -> Void)? = nil,
         onAllowAccess: (() -> Void)? = nil,
         onToggleMute: (() -> Void)? = nil,
         onShowRecordings: (() -> Void)? = nil,
@@ -60,6 +64,7 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         self.preferences = preferences
         self.mic = mic
         self.onStop = onStop
+        self.onSplit = onSplit
         self.onAllowAccess = onAllowAccess
         self.onToggleMute = onToggleMute
         self.onShowRecordings = onShowRecordings
@@ -98,6 +103,11 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         warnLatch.removeAll()
         silenceCountdown = nil
         window?.orderOut(nil)
+    }
+
+    func setSplitEnabled(_ enabled: Bool) {
+        splitEnabled = enabled
+        splitButton?.isEnabled = enabled && recorder?.isRecording == true
     }
 
     /// `nil` restores the configured duration. Otherwise the same pill shows countdown.
@@ -247,6 +257,8 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         muteButton = mute
         let stop = StopRecordingButton(title: L10n.menuStopRecording, target: self, action: #selector(stopClicked))
         stopButton = stop
+        let split = SplitRecordingButton(target: self, action: #selector(splitClicked))
+        splitButton = split
         let folder = ShowRecordingsButton(
             title: L10n.menuShowRecordings,
             target: self,
@@ -261,6 +273,7 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         actions.addArrangedSubview(folder)
         actions.addArrangedSubview(spacer)
         actions.addArrangedSubview(mute)
+        actions.addArrangedSubview(split)
         actions.addArrangedSubview(stop)
 
         root.addArrangedSubview(permission)
@@ -623,6 +636,7 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
         followToggle?.setEnabled(inputsOn)
         playbackScopeChip?.setEnabled(outputsOn)
         stopButton?.isEnabled = true
+        splitButton?.isEnabled = splitEnabled && recorder?.isRecording == true
         if recorder?.isRecording != true {
             setSilenceCountdown(nil)
         }
@@ -711,6 +725,10 @@ final class RecordingMonitorController: NSObject, NSWindowDelegate {
 
     @objc private func stopClicked() {
         onStop?()
+    }
+
+    @objc private func splitClicked() {
+        onSplit?()
     }
 
     @objc private func muteClicked() {

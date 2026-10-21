@@ -228,3 +228,6 @@
 "status.tooltip.unknown" = "LockMic: состояние микрофона неизвестно";
 "status.tooltip.cant_mute" = "LockMic: невозможно выключить %@";
 "recording.device.sample_rate" = "%@ kHz";
+
+"recording.split" = "Разделить";
+"recording.split.tooltip" = "Сохранить текущий фрагмент и сразу начать новую запись";
