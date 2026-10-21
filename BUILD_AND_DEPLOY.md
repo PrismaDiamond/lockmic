@@ -158,7 +158,7 @@ build unsandboxed.
 
 ### 4. Website
 
-Push to `main` already triggers **Cloud Build** → Firebase Hosting (`cloudbuild.yaml`). `website/public/main.js` also rewrites the DMG button from `GET /repos/oochernyshev/lockmic/releases/latest`, but JSON-LD and the visible “Get LockMic X.Y.Z” heading stay whatever you committed in `index.html`.
+Pushing a release tag `vX.Y.Z` triggers **Cloud Build** in `us-central1` → Firebase Hosting (`cloudbuild.yaml`). Merging a PR into `main` does not deploy the site. `website/public/main.js` also rewrites the DMG button from `GET /repos/oochernyshev/lockmic/releases/latest`, but JSON-LD and the visible “Get LockMic X.Y.Z” heading stay whatever you committed in `index.html`.
 
 Do **not** `cd website/public && firebase deploy` (`firebase.json` is at the repo root). Manual deploy only if CI did not run:
 

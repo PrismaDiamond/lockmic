@@ -1,6 +1,6 @@
 # Cloud Build → Firebase Hosting (static site)
 #
-# Auto-deploy: create a trigger on branch `main` that uses THIS file.
+# Auto-deploy: trigger on release tags `vX.Y.Z` using THIS file.
 # Do NOT use Buildpacks / Autodetect / Dockerfile (no package.json → exit 21).
 #
 # ── One-time setup (project lockmic-11c1a) ─────────────────────────────
@@ -29,10 +29,10 @@
 #
 # 4) Create trigger:
 #      Console → Cloud Build → Triggers → Create trigger
-#        Name:                 deploy-firebase-hosting
-#        Event:                Push to a branch
+#        Name:                 LockMic-release-deploy
+#        Event:                Push new tag
 #        Source:               oochernyshev/lockmic
-#        Branch:               ^main$
+#        Tag:                  ^v[0-9]+[.][0-9]+[.][0-9]+$
 #        Configuration:        Cloud Build configuration file (yaml or json)
 #        Location:             Repository
 #        Cloud Build config:   cloudbuild.yaml
@@ -41,7 +41,7 @@
 # 5) Test:
 #      gcloud config set project lockmic-11c1a
 #      gcloud builds submit --config cloudbuild.yaml .
-#    Or push to main.
+#    Or push a new release tag.
 #
 # Deploy uses Application Default Credentials (Cloud Build service account).
 # No FIREBASE_TOKEN secret required if IAM above is set.
