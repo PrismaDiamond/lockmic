@@ -1,35 +1,44 @@
 #!/usr/bin/env bash
-# Cut a LockMic GitHub + Homebrew + website release in one sitting.
+# Prepare a signed release in a branch/PR, then publish after the PR is merged.
 #
-#   ./Scripts/release.sh 1.4.36 -m "stable Dock badge and faster mute lock"
-#   ./Scripts/release.sh 1.4.36 -m "…" --notes-file notes.md
-#   ./Scripts/release.sh 1.4.36 -m "…" --no-push   # commit and tag only
+#   git switch -c release/1.4.50 main
+#   ./Scripts/release.sh 1.4.50 -m "recording split button"
+#   # Merge the PR, update local main, then:
+#   ./Scripts/release.sh publish 1.4.50
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 NEW=""
+MODE="prepare"
 SUMMARY=""
 NOTES_TEXT=""
 NOTES_FILE=""
 NO_PUSH=0
 
+if [[ "${1:-}" == "publish" ]]; then
+  MODE="publish"
+  shift
+fi
+
 usage() {
   cat <<'EOF'
 Usage: Scripts/release.sh <version> -m <summary> [--notes <text> | --notes-file <path>] [--no-push]
+       Scripts/release.sh publish <version> [--notes <text> | --notes-file <path>]
 
-Bumps version files, Release-builds, packages zip/DMG, stamps the Homebrew
-cask SHA-256, commits, tags v<version>, pushes main + tag, then creates the
-GitHub release with dmg/zip and checksums.
+Prepare must run on a clean release/<version> branch based on main. It bumps
+version files, builds and notarizes assets, commits, pushes the branch, and
+opens a PR. Publish runs on clean, up-to-date main after that PR is merged;
+it verifies the assets, pushes a tag, and creates the GitHub release.
 
   -m, --message     One-line summary (commit, ARCHITECTURE row, default notes)
   --notes           GitHub release body (markdown)
   --notes-file      Read release body from a file
-  --no-push         Commit and tag locally; do not push or call gh
+  --no-push         Prepare and commit locally; do not push or open a PR
   -h, --help
 
-The working tree must be clean and you must be on main. Requires xcodegen, gh,
+The working tree must be clean. Requires xcodegen, gh,
 a Developer ID Application certificate, and notarytool credentials. See
 BUILD_AND_DEPLOY.md.
 EOF
@@ -72,7 +81,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$NEW" || -z "$SUMMARY" ]]; then
+if [[ -z "$NEW" || ( "$MODE" == "prepare" && -z "$SUMMARY" ) ]]; then
   usage >&2
   exit 1
 fi
@@ -84,6 +93,10 @@ if [[ "$SUMMARY" == *"|"* ]]; then
   echo "error: -m summary cannot contain | (ARCHITECTURE table row)" >&2
   exit 1
 fi
+if [[ "$MODE" == "publish" && "$NO_PUSH" -eq 1 ]]; then
+  echo "error: --no-push is only valid while preparing a release" >&2
+  exit 1
+fi
 if [[ -n "$NOTES_TEXT" && -n "$NOTES_FILE" ]]; then
   echo "error: use only one of --notes or --notes-file" >&2
   exit 1
@@ -91,7 +104,7 @@ fi
 if [[ -n "$NOTES_FILE" ]]; then
   NOTES_TEXT="$(cat "$NOTES_FILE")"
 fi
-if [[ -z "$NOTES_TEXT" ]]; then
+if [[ -z "$NOTES_TEXT" && "$MODE" == "prepare" ]]; then
   NOTES_TEXT="$(printf '## What’s new\n\n- %s\n' "$SUMMARY")"
 fi
 
@@ -110,12 +123,6 @@ yml_values() {
 
 OLD="$(plist_get CFBundleShortVersionString Resources/Info.plist)"
 OLD_BUILD="$(plist_get CFBundleVersion Resources/Info.plist)"
-if [[ "$NEW" == "$OLD" ]]; then
-  echo "error: already at $NEW" >&2
-  exit 1
-fi
-NEW_BUILD="$((OLD_BUILD + 1))"
-OLD_RE="$(escape_re "$OLD")"
 
 require_yml() {
   local key="$1" expect="$2" got n=0
@@ -141,13 +148,74 @@ if [[ "$CASK_VER" != "$OLD" ]]; then
 fi
 
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [[ "$BRANCH" != "main" ]]; then
-  echo "error: must be on main (now $BRANCH)" >&2
-  exit 1
-fi
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "error: working tree is dirty; commit or stash first" >&2
   git status --porcelain >&2
+  exit 1
+fi
+if [[ "$MODE" == "publish" ]]; then
+  if [[ "$BRANCH" != "main" || "$OLD" != "$NEW" ]]; then
+    echo "error: publish requires main at version $NEW (now $BRANCH at $OLD)" >&2
+    exit 1
+  fi
+  git fetch origin main
+  if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
+    echo "error: local main must match origin/main" >&2
+    exit 1
+  fi
+  ZIP="$ROOT/build/dist/LockMic-${NEW}.zip"
+  DMG="$ROOT/build/dist/LockMic-${NEW}.dmg"
+  NOTES_SAVED="$ROOT/build/dist/LockMic-${NEW}-release-notes.md"
+  for file in "$ZIP" "$DMG" "${ZIP}.sha256" "${DMG}.sha256"; do
+    [[ -f "$file" ]] || { echo "error: missing release asset $file" >&2; exit 1; }
+  done
+  (cd "$ROOT/build/dist" && shasum -a 256 -c "$(basename "${ZIP}.sha256")" && shasum -a 256 -c "$(basename "${DMG}.sha256")")
+  HASH="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
+  CASK_HASH="$(sed -n 's/^  sha256 "\([0-9a-fA-F]*\)"/\1/p' Casks/lockmic.rb | head -1)"
+  [[ "$HASH" == "$CASK_HASH" ]] || { echo "error: zip checksum differs from merged cask" >&2; exit 1; }
+  if [[ -z "$NOTES_TEXT" ]]; then
+    [[ -f "$NOTES_SAVED" ]] || { echo "error: pass --notes-file or restore $NOTES_SAVED" >&2; exit 1; }
+    NOTES_TEXT="$(cat "$NOTES_SAVED")"
+  fi
+  LOCAL_TAG="$(git rev-parse --verify "refs/tags/v${NEW}^{commit}" 2>/dev/null || true)"
+  REMOTE_TAG="$(git ls-remote --tags origin "refs/tags/v${NEW}" | awk '{print $1}')"
+  if [[ -n "$LOCAL_TAG" && "$LOCAL_TAG" != "$(git rev-parse HEAD)" ]]; then
+    echo "error: local tag v${NEW} points to another commit" >&2
+    exit 1
+  fi
+  if [[ -n "$REMOTE_TAG" && "$REMOTE_TAG" != "$(git rev-parse HEAD)" ]]; then
+    echo "error: remote tag v${NEW} points to another commit" >&2
+    exit 1
+  fi
+  gh auth status >/dev/null
+  if gh release view "v${NEW}" >/dev/null 2>&1; then
+    echo "error: GitHub release v${NEW} already exists" >&2
+    exit 1
+  fi
+  if [[ -z "$LOCAL_TAG" ]]; then git tag "v${NEW}"; fi
+  if [[ -z "$REMOTE_TAG" ]]; then git push origin "v${NEW}"; fi
+  NOTES_TMP="$(mktemp)"
+  printf '%s\n' "$NOTES_TEXT" > "$NOTES_TMP"
+  gh release create "v${NEW}" --title "LockMic ${NEW}" --notes-file "$NOTES_TMP" \
+    "$DMG" "${DMG}.sha256" "$ZIP" "${ZIP}.sha256"
+  rm -f "$NOTES_TMP"
+  echo "==> Released ${NEW}"
+  exit 0
+fi
+
+if [[ "$NEW" == "$OLD" ]]; then
+  echo "error: already at $NEW" >&2
+  exit 1
+fi
+NEW_BUILD="$((OLD_BUILD + 1))"
+OLD_RE="$(escape_re "$OLD")"
+if [[ "$BRANCH" != "release/$NEW" ]]; then
+  echo "error: prepare requires release/$NEW (now $BRANCH)" >&2
+  exit 1
+fi
+git fetch origin main
+if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
+  echo "error: release branch must start at current origin/main" >&2
   exit 1
 fi
 if git rev-parse --verify --quiet "refs/tags/v${NEW}"; then
@@ -284,35 +352,19 @@ if [[ -z "$(git diff --cached --name-only)" ]]; then
   exit 1
 fi
 
-git commit -m "Release ${NEW}: ${SUMMARY}"
-git tag "v${NEW}"
-echo "==> Committed and tagged v${NEW}"
+git commit -m "Prepare ${NEW}: ${SUMMARY}"
+printf '%s\n' "$NOTES_TEXT" > "$ROOT/build/dist/LockMic-${NEW}-release-notes.md"
+echo "==> Committed release preparation for ${NEW}"
 
 if [[ "$NO_PUSH" -eq 1 ]]; then
-  echo "    --no-push: not pushing. When ready:"
-  echo "    git push origin main && git push origin v${NEW}"
-  echo "    gh release create v${NEW} --title \"LockMic ${NEW}\" --notes-file … \\"
-  echo "      build/dist/LockMic-${NEW}.dmg build/dist/LockMic-${NEW}.dmg.sha256 \\"
-  echo "      build/dist/LockMic-${NEW}.zip build/dist/LockMic-${NEW}.zip.sha256"
+  echo "    --no-push: push $BRANCH and open a PR before publishing"
   exit 0
 fi
 
-echo "==> Pushing main and v${NEW}"
-git push origin main
-git push origin "v${NEW}"
-
-NOTES_TMP="$(mktemp)"
-printf '%s\n' "$NOTES_TEXT" > "$NOTES_TMP"
-echo "==> Creating GitHub release"
-gh release create "v${NEW}" \
-  --title "LockMic ${NEW}" \
-  --notes-file "$NOTES_TMP" \
-  "$DMG" \
-  "${DMG}.sha256" \
-  "$ZIP" \
-  "${ZIP}.sha256"
-rm -f "$NOTES_TMP"
-
-echo "==> Released ${NEW}"
-echo "    https://github.com/oochernyshev/lockmic/releases/tag/v${NEW}"
-echo "    brew reinstall --cask --yes lockmic"
+echo "==> Pushing $BRANCH and opening PR"
+git push -u origin "$BRANCH"
+PR_BODY="$(mktemp)"
+printf 'Release %s: %s\n\nSigned and notarized assets are staged locally in `build/dist/`. After merge, run `./Scripts/release.sh publish %s` on updated main from this machine.\n' "$NEW" "$SUMMARY" "$NEW" > "$PR_BODY"
+gh pr create --base main --head "$BRANCH" --title "Release ${NEW}: ${SUMMARY}" --body-file "$PR_BODY"
+rm -f "$PR_BODY"
+echo "==> Merge the PR, update main, then run: ./Scripts/release.sh publish ${NEW}"

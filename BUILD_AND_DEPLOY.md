@@ -96,20 +96,25 @@ The zip is the Homebrew cask asset. The DMG is the website / GitHub download. Fo
 
 ## Publish a release
 
-Working tree must be **clean** and you must be on **main**. The script validates signing credentials before modifying files, bumps every version file, Release-builds, Developer ID signs and notarizes the app, packages it, notarizes the DMG, stamps the cask SHA-256, commits, tags, pushes `main` **and** the tag, then creates the GitHub release immediately so cask/website URLs do not 404.
+Work from a clean `release/X.Y.Z` branch created at current `origin/main`. The prepare command validates signing credentials, bumps every version file, Release-builds, Developer ID signs and notarizes the app, packages it, notarizes the DMG, stamps the cask SHA-256, commits, pushes the branch, and opens a PR. After that PR is merged, the publish command verifies that local `main` matches `origin/main`, checks staged assets against the merged cask checksum, tags the merged commit, and creates the GitHub release. Keep `build/dist/` on the same machine between the two commands.
 
 ```bash
-# Product changes already committed.
-./Scripts/release.sh 1.4.36 -m "one-line summary of the ship"
+# Product PRs already merged; local main up to date.
+git switch -c release/1.4.50 main
+./Scripts/release.sh 1.4.50 -m "one-line summary of the ship"
+
+# After the generated release PR is merged:
+git switch main && git pull --ff-only origin main
+./Scripts/release.sh publish 1.4.50
 
 # Custom GitHub body (otherwise “What’s new” + the -m line):
-./Scripts/release.sh 1.4.36 -m "one-line summary" --notes-file notes.md
+./Scripts/release.sh 1.4.50 -m "one-line summary" --notes-file notes.md
 
-# Inspect the commit/tag locally first:
-./Scripts/release.sh 1.4.36 -m "one-line summary" --no-push
+# Prepare and commit locally without pushing or opening a PR:
+./Scripts/release.sh 1.4.50 -m "one-line summary" --no-push
 ```
 
-`-m` is the git commit (`Release X.Y.Z: …`) and the ARCHITECTURE phase-map row. `--notes` / `--notes-file` should match recent releases: short “What’s new” bullets, no fluff.
+`-m` is the commit (`Prepare X.Y.Z: …`) and the ARCHITECTURE phase-map row. `--notes` / `--notes-file` are saved under `build/dist/` for publication and should match recent releases: short “What’s new” bullets, no fluff.
 
 It refuses to run if `Info.plist`, `project.yml` (both `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` pairs), and `Casks/lockmic.rb` do not already agree. Build number is last + 1. `homebrew/Casks/lockmic.rb` is a symlink; only `Casks/lockmic.rb` is edited.
 
@@ -126,7 +131,7 @@ It refuses to run if `Info.plist`, `project.yml` (both `MARKETING_VERSION` / `CU
 | `website/public/llms.txt` | current version and DMG URL |
 | `Casks/lockmic.rb` | `version` and zip `sha256` |
 
-Manual equivalent (only if you cannot run the script): bump the table above, `./Scripts/build_homebrew.sh && ./Scripts/package_dmg.sh`, paste the zip SHA-256 into the cask, commit, `git tag vX.Y.Z`, `git push origin main && git push origin vX.Y.Z`, then `gh release create` with dmg, zip, and both `.sha256` files.
+Manual equivalent (only if you cannot run the script): bump the table above, `./Scripts/build_homebrew.sh`, sign and notarize the app, `./Scripts/package_dmg.sh`, notarize the DMG, paste the zip SHA-256 into the cask, commit on a release branch, push it, and merge its PR. Then tag the merged `main` commit, push the tag, and create a GitHub release with dmg, zip, and both `.sha256` files.
 
 ## Mac App Store archive
 
