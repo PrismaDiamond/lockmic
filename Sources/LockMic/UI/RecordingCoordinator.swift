@@ -14,6 +14,7 @@ final class RecordingCoordinator {
     private var watchedSilenceTimeout: TimeInterval?
     /// After the user dismisses the countdown, wait for real audio before starting a new silence period.
     private var skipUntilSpeech = false
+    private var isSplitting = false
 
     var onSessionChanged: (() -> Void)?
     var onToggleMute: (() -> Void)?
@@ -95,6 +96,7 @@ final class RecordingCoordinator {
     }
 
     func stop(source: UsageReporter.ActivationSource) {
+        guard !isSplitting else { return }
         stopSilenceWatch()
         monitor.hide()
         if !recorder.isRecording, !recorder.isBusy {
@@ -126,6 +128,32 @@ final class RecordingCoordinator {
         }
     }
 
+    func split() {
+        guard recorder.isRecording, !isSplitting else { return }
+        isSplitting = true
+        monitor.setSplitEnabled(false)
+        stopSilenceWatch()
+        Task { [weak self] in
+            guard let self else { return }
+            defer {
+                isSplitting = false
+                monitor.setSplitEnabled(recorder.isRecording)
+            }
+            do {
+                let file = try await recorder.stopCaptures()
+                UsageReporter.record(.stopRecording, source: .monitor)
+                onSessionChanged?()
+                if !FileManager.default.fileExists(atPath: file.path) {
+                    UsageReporter.record(.mixFailed, source: .monitor)
+                }
+                await start(source: .monitor)
+            } catch {
+                onSessionChanged?()
+                onPresentError?(error)
+            }
+        }
+    }
+
     func finalizeForQuit() async {
         stopSilenceWatch()
         let wasActive = recorder.isBusy
@@ -149,6 +177,9 @@ final class RecordingCoordinator {
             mic: mic,
             onStop: { [weak self] in
                 self?.stop(source: .monitor)
+            },
+            onSplit: { [weak self] in
+                self?.split()
             },
             onAllowAccess: { [weak self] in
                 self?.retryAccessFromMonitor()

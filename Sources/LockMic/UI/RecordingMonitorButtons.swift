@@ -139,6 +139,29 @@ final class ShowRecordingsButton: PillButton {
     }
 }
 
+/// Saves the current segment and starts another one.
+final class SplitRecordingButton: PillButton {
+    init(target: AnyObject?, action: Selector) {
+        super.init(title: L10n.recordingSplit, symbolName: "forward.end.fill", target: target, action: action)
+        toolTip = L10n.recordingSplitTooltip
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
+
+    override var isEnabled: Bool {
+        didSet { needsDisplay = true }
+    }
+
+    override func fillColor() -> NSColor {
+        NSColor.black.withAlphaComponent(isEnabled ? (isHighlighted ? 0.66 : 0.50) : 0.25)
+    }
+
+    override func titleTextColor() -> NSColor {
+        isEnabled ? .white : .white.withAlphaComponent(0.55)
+    }
+}
+
 /// Red fill, dims when disabled.
 final class StopRecordingButton: PillButton {
     init(title: String, target: AnyObject?, action: Selector) {

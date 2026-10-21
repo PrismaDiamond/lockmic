@@ -134,6 +134,8 @@ enum L10n {
     static var recordingInputsHeader: String { tr("recording.inputs.header") }
     static var recordingOutputsHeader: String { tr("recording.outputs.header") }
     static var recordingMonitorTitle: String { tr("recording.monitor.title") }
+    static var recordingSplit: String { tr("recording.split") }
+    static var recordingSplitTooltip: String { tr("recording.split.tooltip") }
     static var recordingFollowDefaultMic: String { tr("recording.monitor.follow_default") }
     static var recordingFollowDefaultOutput: String { tr("recording.monitor.follow_default_output") }
     static var recordingMonitorRecordAll: String { tr("recording.monitor.record_all") }

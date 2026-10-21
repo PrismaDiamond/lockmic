@@ -240,3 +240,6 @@
 "status.tooltip.unknown" = "LockMic: Microphone state unknown";
 "status.tooltip.cant_mute" = "LockMic: Cannot mute %@";
 "recording.device.sample_rate" = "%@ kHz";
+
+"recording.split" = "Split";
+"recording.split.tooltip" = "Save this segment and immediately start a new recording";
