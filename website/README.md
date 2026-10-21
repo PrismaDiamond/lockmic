@@ -81,11 +81,11 @@ firebase deploy --only hosting
 3. GitHub → **Settings → Secrets and variables → Actions**
    - Secret `FIREBASE_SERVICE_ACCOUNT` = full JSON key
    - Optional variable `FIREBASE_PROJECT_ID` = your project id (default `lockmic-11c1a`)
-4. Push to `main` (or run workflow **Deploy Firebase Hosting** manually).
+4. Run workflow **Deploy Firebase Hosting** manually.
 
 Workflow file: [`.github/workflows/firebase-hosting.yml`](../.github/workflows/firebase-hosting.yml)
 
-### Cloud Build (auto-deploy on push to `main`)
+### Cloud Build (auto-deploy on release tag)
 
 This is the supported CI path for this repo.
 
@@ -98,11 +98,11 @@ Then in **Google Cloud Console** (project **lockmic-11c1a**):
 
 1. **Cloud Build → Repositories** → Connect repository → GitHub → `oochernyshev/lockmic`
 2. **Cloud Build → Triggers → Create trigger**
-   - Event: **Push to a branch**
-   - Branch: `^main$`
+   - Event: **Push new tag**
+   - Tag: `^v[0-9]+[.][0-9]+[.][0-9]+$`
    - Configuration: **Cloud Build configuration file**
    - File: **`cloudbuild.yaml`** (never Buildpacks / Autodetect)
-3. Push to `main` or test:
+3. Push a new release tag or test:
 
 ```bash
 gcloud config set project lockmic-11c1a
